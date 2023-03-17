@@ -1,17 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc, asc
-from sqlalchemy.orm import relationship
 from nutritionix import get_food, get_exercise
 from flask_bootstrap import Bootstrap
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import WeightForm, FoodForm, ExerciseForm, RegisterForm, Sign_in, time, DateForm
-from datetime import datetime
-from charts import NewChart
 import pandas as pd
 # from dotenv import load_dotenv
 import os
