@@ -13,12 +13,12 @@ from forms import WeightForm, FoodForm, ExerciseForm, RegisterForm, Sign_in, tim
 from datetime import datetime
 from charts import NewChart
 import pandas as pd
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
 
-load_dotenv()
+# load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Flask-WTF requires an encryption key - the string can be anything

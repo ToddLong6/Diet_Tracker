@@ -1,8 +1,8 @@
 import requests
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
 
-load_dotenv()
+# load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
 APP_ID = os.getenv("APP_ID")
