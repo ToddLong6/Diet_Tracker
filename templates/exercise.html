@@ -1,0 +1,210 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+{% include "header.html" %}
+
+<main id="main" class="main">
+    <!-- Page Title -->
+    <div class="pagetitle">
+        <h1>Dashboard</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{url_for('home')}}">Home</a></li>
+                <li class="breadcrumb-item active">Exercise</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <!-- Form -->
+    <div class="col-xl-12">
+        <div class="row justify-content-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Workout</h5>
+
+                    <!-- No Labels Form -->
+                    {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+                    <!-- End No Labels Form -->
+
+                </div>
+            </div>
+        </div>
+    </div><!-- End Form -->
+
+    <!-- Cards -->
+    <div class="col-xl-12">
+        <div class="row justify-content-center">
+            <!-- Current Calories Burned Card  -->
+            <div class="col-lg-6 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">Today <span>| Calories Burned</span> </h5>
+                        <h4>{{ burned_calorie[-1] }}</h4>
+                    </div>
+                </div>
+            </div><!-- End Current Calories Burned Card -->
+            <!-- Total Calories Burned Card -->
+            <div class="col-lg-6 col-md-6">
+            <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Yesterday <span>| Calories Burned</span></h5>
+                        <h4>{{ burned_calorie[-2] }}</h4>
+                    </div>
+                  </div>
+            </div><!-- End Total Calories Burned Card  -->
+        </div>
+    </div><!-- End Cards -->
+
+    <!-- Line Chart -->
+    <div class="row justify-content-center">
+        <div class="col-xl-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Calories Burned</h5>
+
+              <!-- Calories Burn Chart Info -->
+              <canvas id="lineChart" style="max-height: 400px; display: block; box-sizing: border-box; height: 251px; width: 503px;" width="629" height="314"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#lineChart'), {
+                    type: 'line',
+                    data: {
+                      labels: {{ burned_dates | safe }},
+                      datasets: [{
+                        label: 'Calories Burned',
+                        data: {{ burned_calorie | safe }},
+                        fill: false,
+                        borderColor: 'rgb(206,36,36)',
+                        tension: 0.1
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+              <!-- End Calories Burn Chart Info-->
+
+            </div>
+          </div>
+        </div>
+    </div><!-- End Line Chart -->
+
+    <!-- Radar Chart -->
+    <div class="col-xl-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Exercise Count</h5>
+
+              <!-- Workout Data Chart -->
+              <canvas id="radarChart" style="max-height: 400px; display: block; box-sizing: border-box; height: 400px; width: 466px;" width="583" height="500"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#radarChart'), {
+                    type: 'radar',
+                    data: {
+                      labels: {{ workout_name | safe }},
+                      datasets: [{
+                        label:  'Workout Count',
+                        data: {{ workout_count | safe }},
+                        fill: true,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        pointBackgroundColor: 'rgb(54, 162, 235)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(54, 162, 235)'
+                      }]
+                    },
+                    options: {
+                      elements: {
+                        line: {
+                          borderWidth: 2
+                        }
+                      }
+                    }
+                  });
+                });
+              </script><!-- End Workout Data Chart -->
+
+            </div>
+          </div>
+        </div><!-- End Radar Chart -->
+
+    <!-- Total Exercise Table -->
+    <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Exercise Table</h5>
+
+              <!-- Table with stripped rows -->
+              <table class="table table-striped">
+                {{ wtf.quick_form(exercise_date, novalidate=True, button_map={"submit1": "primary"}) }}
+                <hr>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Calories Loss</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for losses in db_burns %}
+                  <tr>
+                    <th scope="row">{{ losses.id }}</th>
+                    <td>{{ losses.date }}</td>
+                    <td>{{ losses.total_calories_loss }}</td>
+                    <td><a href="/delete_loss/{{ losses.id }}" class="btn btn-outline-danger btm-sm">Delete</a></td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div><!-- End Table -->
+
+    <!-- All Exercise Table -->
+    <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Exercise Table</h5>
+
+              <!-- Table with stripped rows -->
+              <table class="table table-striped">
+
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Workout</th>
+                    <th scope="col">Calories Burned</th>
+                    <th scope="col">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for exercise in db_exercise %}
+                      <tr>
+                          <th scope="row">{{ exercise.id }}</th>
+                          <td>{{ exercise.item }}</td>
+                          <td>{{ exercise.calories }}</td>
+                          <td>{{ exercise.date }}</td>
+                          <td><a href="/delete_exercise/{{ exercise.id }}" class="btn btn-outline-danger btm-sm">Delete</a></td>
+                      </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div><!-- End Table -->
+
+
+</main>
+
+
+{% include "footer.html" %}
+{% endblock %}

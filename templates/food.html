@@ -1,0 +1,228 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+{% include "header.html" %}
+
+<main id="main" class="main">
+    <!-- Page Title -->
+    <div class="pagetitle">
+        <h1>Dashboard</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{url_for('home')}}">Home</a></li>
+                <li class="breadcrumb-item active">Food</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <!-- Form -->
+    <div class="col-xl-12">
+        <div class="row justify-content-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Food</h5>
+
+                    <!-- No Labels Form -->
+                    <div class="col-lg-6">
+
+                    {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+
+                    </div><!-- End No Labels Form -->
+
+                </div>
+            </div>
+        </div>
+    </div><!-- End Form -->
+
+    <!-- Cards -->
+    <div class="col-xl-12">
+        <div class="row justify-content-center">
+            <!-- Calories Intake Card -->
+            <div class="col-lg-4 col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">Calories Intake</h5>
+                        <h4>{{ all_calories[-1] }}</h4>
+                    </div>
+                </div>
+            </div><!-- End Calories Intake Card -->
+            <!-- Sugar Intake Card -->
+            <div class="col-lg-4 col-md-4">
+            <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Sugar Intake</h5>
+                        <h4>{{ all_sugar[-1] }} <span>mg</span> </h4>
+                    </div>
+                  </div>
+            </div><!-- End Sugar Intake Card -->
+            <!-- Previous Calorie Intake Card -->
+            <div class="col-lg-4 col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">Previous Calorie Intake</h5>
+                      <h4>{{ all_calories[-2] }}</h4>
+                    </div>
+                  </div>
+            </div><!-- End Previous Calorie Intake Card -->
+        </div>
+    </div><!-- End Cards -->
+
+    <!-- Report Chart -->
+    <div class="row justify-content-center">
+        <div class="col-xl-12">
+            <div class="card">
+
+                <div class="filter">
+                                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                    <li class="dropdown-header text-start">
+                                        <h6>Filter</h6>
+                                    </li>
+
+                                    <li><a class="dropdown-item" href="#">Today</a></li>
+                                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                                </ul>
+                            </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Intake <span>/Today</span></h5>
+
+                    <!-- Intake Chart -->
+                    <div id="intake_reportsChart" style="min-height: 365px;">
+
+                    </div>
+                </div>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            new ApexCharts(document.querySelector("#intake_reportsChart"), {
+                                series: [{
+                                    name: 'Calories',
+                                    data: {{ all_calories | safe }},
+                                }, {
+                                    name: 'Sugar',
+                                    data: {{ all_sugar | safe }},
+
+                                }],
+                                chart: {
+                                    height: 350,
+                                    type: 'area',
+                                    toolbar: {
+                                        show: false
+                                    },
+                                },
+                                markers: {
+                                    size: 4
+                                },
+                                colors: ['#2eca6a', '#ff771d'],
+                                fill: {
+                                    type: "gradient",
+                                    gradient: {
+                                        shadeIntensity: 1,
+                                        opacityFrom: 0.3,
+                                        opacityTo: 0.4,
+                                        stops: [0, 90, 100]
+                                    }
+                                },
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                stroke: {
+                                    curve: 'smooth',
+                                    width: 2
+                                },
+                                xaxis: {
+                                    type: 'date',
+                                    categories: {{ all_dates | safe }}
+                                },
+                                tooltip: {
+                                    x: {
+                                        format: 'dd/MM/yy HH:mm'
+                                    },
+                                }
+                            }).render();
+                        });
+                    </script><!-- End Intake Chart -->
+
+            </div>
+        </div>
+    </div><!-- End Report Chart -->
+
+    <!-- Table Total Cal-->
+    <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Total Calories & Sugar</h5>
+
+              <!-- Table with stripped rows -->
+              <table class="table table-striped">
+                {{ wtf.quick_form(intake_form, novalidate=True, button_map={"submit1": "primary"}) }}
+                <hr>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Calories</th>
+                    <th scope="col">Sugars</th>
+                    <th scope="col">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for intake in db_intake %}
+                      <tr>
+                          <th scope="row">{{ intake.id}}</th>
+                          <td>{{ intake.total_calories }}</td>
+                          <td>{{ intake.total_sugar }}</td>
+                          <td>{{ intake.date }}</td>
+                          <td><a href="/delete_intake/{{ intake.id }}" class="btn btn-outline-danger btm-sm">Delete</a></td>
+                      </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div><!-- End Table -->
+
+    <!-- Table Food List-->
+    <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Food List</h5>
+
+              <!-- Table with stripped rows -->
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name Item</th>
+                    <th scope="col">Calories</th>
+                    <th scope="col">Sugars</th>
+                    <th scope="col">Meal Type</th>
+                    <th scope="col">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for food in db_food %}
+                      <tr>
+                          <th scope="row">{{ food.id}}</th>
+                          <td>{{ food.item }}</td>
+                          <td>{{ food.calories }}</td>
+                          <td>{{ food.sugar }}</td>
+                          <td>{{ food.meal }}</td>
+                          <td>{{ food.date }}</td>
+                          <td><a href="/delete_food/{{ food.id }}" class="btn btn-outline-danger btm-sm">Delete</a></td>
+                      </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div><!-- End Table -->
+
+
+</main>
+
+
+{% include "footer.html" %}
+{% endblock %}

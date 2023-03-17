@@ -1,0 +1,144 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+{% include "header.html" %}
+
+<main id="main" class="main">
+    <!-- Page Title -->
+    <div class="pagetitle">
+        <h1>Dashboard</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{url_for('home')}}">Home</a></li>
+                <li class="breadcrumb-item active">Weight</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <!-- Form -->
+    <div class="col-xl-12">
+        <div class="row justify-content-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Weight</h5>
+
+                    <!-- No Labels Form -->
+                    <div class="col-lg-6">
+
+                    {{ wtf.quick_form(form, novalidate=True, form_type=inline, button_map={"submit": "primary"}) }}
+
+                    </div><!-- End No Labels Form -->
+
+                </div>
+            </div>
+        </div>
+    </div><!-- End Form -->
+
+    <!-- Cards -->
+    <div class="col-xl-12">
+        <div class="row justify-content-center">
+            <!-- Starting Weight Card -->
+            <div class="col-lg-4 col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Starting Weight</h5>
+                        <h4>{{ current_user.s_weight }} <span>lbs</span></h4>
+                    </div>
+                </div>
+            </div><!-- End Starting Weight Card -->
+            <!-- Current Weight Card -->
+            <div class="col-lg-4 col-md-4">
+            <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Current Weight</h5>
+                        <h4>{{ current_weight }} <span>lbs</span> </h4>
+                    </div>
+                  </div>
+            </div><!-- End Current Weight Card -->
+            <!-- Weight Loss Card -->
+            <div class="col-lg-4 col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title">Weight Loss</h5>
+                      <h4>{{ weight_loss }} <span>lbs</span> </h4>
+                    </div>
+                  </div>
+            </div><!-- End Weight Loss Card  -->
+        </div>
+    </div><!-- End Cards -->
+
+    <!-- Line Chart -->
+    <div class="row justify-content-center">
+        <div class="col-xl-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Weight Chart</h5>
+
+              <!-- Weight Chart Info -->
+              <canvas id="lineChart" style="max-height: 400px; display: block; box-sizing: border-box; height: 251px; width: 503px;" width="629" height="314"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#lineChart'),{
+                    type: 'line',
+                    data: {
+                      labels: {{ date_list | safe }},
+                      datasets: [{
+                        label: 'Weight',
+                        data: {{ weight_list | safe }},
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.3
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+              <!-- End Weight Chart Info-->
+
+            </div>
+          </div>
+        </div>
+    </div><!-- End Line Chart -->
+
+    <!-- Table -->
+    <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Weight Table</h5>
+                <!-- Table with stripped rows -->
+                <table class="table table-striped">
+                  <thead>
+                      <tr>
+<!--                        <th scope="col">#</th>-->
+                        <th scope="col">Weight</th>
+                        <th scope="col">Start Date</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for weight in db_weight %}
+                      <tr>
+                          <th scope="row">{{ weight.id}}</th>
+                          <td>{{ weight.weight}}</td>
+                          <td>{{ weight.date}}</td>
+                          <td><a href="/delete/{{ weight.id }}" class="btn btn-outline-danger btm-sm">Delete</a></td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div><!-- End Table -->
+
+</main>
+
+
+{% include "footer.html" %}
+{% endblock %}
