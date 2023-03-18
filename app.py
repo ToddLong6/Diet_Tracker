@@ -20,8 +20,12 @@ app.config['SECRET_KEY'] = SECRET_KEY
 # Flask-Bootstrap requires this line
 Bootstrap(app)
 
-# adding configuration for using a sqlite database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+
+
+
+# adding configuration for using a postgres and sqlite database
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", 'sqlite:///site.db')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 # Creating an SQLAlchemy instance
 db = SQLAlchemy(app)
